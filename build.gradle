@@ -1,0 +1,51 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.7.RELEASE'
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+plugins {
+    id 'net.ltgt.apt' version '0.13'
+}
+
+
+repositories {
+    mavenCentral()
+    maven { url "http://repo.spring.io/release" }
+    maven { url "http://repo.spring.io/milestone" }
+    maven { url "http://repo.spring.io/snapshot" }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'war'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter")
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('org.springframework.boot:spring-boot-devtools')
+    compile('org.springframework.data:spring-data-jpa')
+    compile("com.h2database:h2")
+    compile('log4j:log4j:1.2.17')
+    compile('org.mapstruct:mapstruct-jdk8:1.2.0.Final')
+    compileOnly('org.projectlombok:lombok:1.16.18')
+    // https://mvnrepository.com/artifact/org.axonframework/axon-core
+    compile group: 'org.axonframework', name: 'axon-spring', version: '3.1.1'
+    testCompile group: 'org.axonframework', name: 'axon-test', version: '3.1.1'
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile 'org.mockito:mockito-core:2.0.54-beta'
+    apt "org.mapstruct:mapstruct-processor:1.2.0.Final", "org.projectlombok:lombok:1.16.18"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.4.1'
+}
