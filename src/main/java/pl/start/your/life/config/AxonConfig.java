@@ -28,7 +28,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
-import pl.start.your.life.aggregate.Pay;
 import pl.start.your.life.domain.Order;
 import pl.start.your.life.handler.OrderHandler;
 
@@ -87,13 +86,6 @@ public class AxonConfig {
     }
 
     @Bean
-    public AggregateFactory<Pay> payAggregateFactory() {
-        SpringPrototypeAggregateFactory<Pay> factory = new SpringPrototypeAggregateFactory<>();
-        factory.setPrototypeBeanName("pay");
-        return factory;
-    }
-
-    @Bean
     public Repository<Order> orderRepository() {
         EventCountSnapshotTriggerDefinition snapshotTriggerDefinition = new EventCountSnapshotTriggerDefinition(
                 snapshotter,
@@ -106,11 +98,6 @@ public class AxonConfig {
         OrderHandler orderHandler = new OrderHandler();
         orderHandler.setRepository(orderRepository());
         return orderHandler;
-    }
-
-    @Bean
-    public Repository<Pay> payRepository() {
-        return new CachingEventSourcingRepository<>(payAggregateFactory(), eventStore(), cache());
     }
 
     @Bean
