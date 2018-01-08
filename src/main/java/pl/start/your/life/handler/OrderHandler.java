@@ -21,6 +21,7 @@ public class OrderHandler {
 
     @CommandHandler
     public void handle(OrderCreateCommand command) throws Exception {
+        System.out.println("on command create order");
         Aggregate<Order> order = repository.newInstance(() -> new Order(command.getOrderId(), command.getPrice(), command.getAccountId()));
         jpaOrderRepository.save(new Order(command.getOrderId(), command.getPrice(), command.getAccountId()));
         order.execute(e -> e.orderCreated(command));

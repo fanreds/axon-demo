@@ -3,12 +3,9 @@ package pl.start.your.life.handler;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 
 import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import lombok.NoArgsConstructor;
-import pl.start.your.life.aggregate.Pay;
 import pl.start.your.life.command.PaymentCommand;
 import pl.start.your.life.domain.Account;
 import pl.start.your.life.event.PaymentAcceptedEvent;

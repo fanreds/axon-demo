@@ -8,22 +8,22 @@ import org.axonframework.common.caching.Cache;
 import org.axonframework.common.caching.NoCache;
 import org.axonframework.common.jpa.ContainerManagedEntityManagerProvider;
 import org.axonframework.common.jpa.EntityManagerProvider;
-import org.axonframework.common.lock.PessimisticLockFactory;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventsourcing.AggregateFactory;
 import org.axonframework.eventsourcing.CachingEventSourcingRepository;
-import org.axonframework.eventsourcing.NoSnapshotTriggerDefinition;
+import org.axonframework.eventsourcing.EventCountSnapshotTriggerDefinition;
+import org.axonframework.eventsourcing.Snapshotter;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageEngine;
 import org.axonframework.messaging.annotation.ParameterResolver;
 import org.axonframework.messaging.annotation.ParameterResolverFactory;
-import org.axonframework.spring.config.CommandHandlerSubscriber;
-import org.axonframework.spring.config.annotation.AnnotationCommandHandlerBeanPostProcessor;
 import org.axonframework.spring.config.annotation.SpringBeanParameterResolverFactory;
+import org.axonframework.spring.eventsourcing.SpringAggregateSnapshotterFactoryBean;
 import org.axonframework.spring.eventsourcing.SpringPrototypeAggregateFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -35,6 +35,9 @@ import pl.start.your.life.handler.OrderHandler;
 @Configuration
 public class AxonConfig {
 
+    @Autowired
+    private Snapshotter snapshotter;
+
     @Bean
     public EntityManagerProvider entityManagerProvider() {
         return new ContainerManagedEntityManagerProvider();
@@ -43,6 +46,11 @@ public class AxonConfig {
     @Bean
     public EventStore eventStore() {
         return new EmbeddedEventStore(eventStorageEngine());
+    }
+
+    @Bean
+    public SpringAggregateSnapshotterFactoryBean snapshotter() {
+        return new SpringAggregateSnapshotterFactoryBean();
     }
 
     @Bean
@@ -87,7 +95,10 @@ public class AxonConfig {
 
     @Bean
     public Repository<Order> orderRepository() {
-        return new CachingEventSourcingRepository<>(orderAggregateFactory(), eventStore(), new PessimisticLockFactory(), cache(), parameterResolverFactory(), NoSnapshotTriggerDefinition.INSTANCE);
+        EventCountSnapshotTriggerDefinition snapshotTriggerDefinition = new EventCountSnapshotTriggerDefinition(
+                snapshotter,
+                50);
+        return new CachingEventSourcingRepository<>(orderAggregateFactory(), eventStore(), cache(), snapshotTriggerDefinition);
     }
 
     @Bean
@@ -95,16 +106,6 @@ public class AxonConfig {
         OrderHandler orderHandler = new OrderHandler();
         orderHandler.setRepository(orderRepository());
         return orderHandler;
-    }
-
-    @Bean
-    public AnnotationCommandHandlerBeanPostProcessor annotationCommandHandlerBeanPostProcessor() {
-        return new AnnotationCommandHandlerBeanPostProcessor();
-    }
-
-    @Bean
-    public CommandHandlerSubscriber commandHandlerSubscriber() {
-        return new CommandHandlerSubscriber();
     }
 
     @Bean
