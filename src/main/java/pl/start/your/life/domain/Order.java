@@ -9,7 +9,7 @@ import javax.persistence.Table;
 
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateRoot;
-import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.eventsourcing.EventSourcingHandler;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,7 +36,7 @@ public class Order {
         apply(new OrderCreatedEvent(command.getOrderId(), command.getPrice(), command.getAccountId()));
     }
 
-    @EventHandler
+    @EventSourcingHandler
     public void on(OrderCreatedEvent event) {
         System.out.println("on source OrderCreatedEvent");
         this.id = event.getOrderId();

@@ -4,23 +4,20 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.Aggregate;
 import org.axonframework.commandhandling.model.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import lombok.NoArgsConstructor;
 import pl.start.your.life.command.OrderCreateCommand;
 import pl.start.your.life.domain.Order;
-import pl.start.your.life.repository.OrderRepository;
+import pl.start.your.life.repository.OrderJpaRepository;
 
 @Component
+@NoArgsConstructor
 public class OrderHandler {
 
-    private OrderRepository jpaOrderRepository;
+    private OrderJpaRepository jpaOrderRepository;
     private Repository<Order> repository;
-
-    @Autowired
-    public OrderHandler(OrderRepository jpaOrderRepository, Repository<Order> repository) {
-        this.jpaOrderRepository = jpaOrderRepository;
-        this.repository = repository;
-    }
 
     @CommandHandler
     public void handle(OrderCreateCommand command) throws Exception {
@@ -29,4 +26,14 @@ public class OrderHandler {
         order.execute(e -> e.orderCreated(command));
     }
 
+    @Autowired
+    @Qualifier(value = "orderRepository")
+    public void setRepository(Repository<Order> orderRepository) {
+        this.repository = orderRepository;
+    }
+
+    @Autowired
+    public void setJpaOrderRepository(OrderJpaRepository jpaOrderRepository) {
+        this.jpaOrderRepository = jpaOrderRepository;
+    }
 }

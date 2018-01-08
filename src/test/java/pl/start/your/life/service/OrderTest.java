@@ -14,19 +14,22 @@ import pl.start.your.life.command.OrderCreateCommand;
 import pl.start.your.life.domain.Order;
 import pl.start.your.life.event.OrderCreatedEvent;
 import pl.start.your.life.handler.OrderHandler;
-import pl.start.your.life.repository.OrderRepository;
+import pl.start.your.life.repository.OrderJpaRepository;
 
 public class OrderTest {
     private FixtureConfiguration<Order> fixture;
 
     @Mock
-    private OrderRepository jpaOrderRepository;
+    private OrderJpaRepository jpaOrderRepository;
 
     @Before
     public void setup() {
         initMocks(this);
         fixture = new AggregateTestFixture<>(Order.class);
-        fixture.registerAnnotatedCommandHandler(new OrderHandler(jpaOrderRepository, fixture.getRepository()));
+        OrderHandler orderHandler = new OrderHandler();
+        orderHandler.setRepository(fixture.getRepository());
+        orderHandler.setJpaOrderRepository(jpaOrderRepository);
+        fixture.registerAnnotatedCommandHandler(orderHandler);
         when(jpaOrderRepository.save(any(Order.class))).thenReturn(new Order());
     }
 

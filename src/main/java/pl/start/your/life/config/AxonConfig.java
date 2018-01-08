@@ -26,9 +26,11 @@ import org.axonframework.spring.config.annotation.SpringBeanParameterResolverFac
 import org.axonframework.spring.eventsourcing.SpringPrototypeAggregateFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 import pl.start.your.life.aggregate.Pay;
 import pl.start.your.life.domain.Order;
+import pl.start.your.life.handler.OrderHandler;
 
 @Configuration
 public class AxonConfig {
@@ -64,6 +66,12 @@ public class AxonConfig {
     }
 
     @Bean
+    @Scope("prototype")
+    public Order order() {
+        return new Order();
+    }
+
+    @Bean
     public AggregateFactory<Order> orderAggregateFactory() {
         SpringPrototypeAggregateFactory<Order> factory = new SpringPrototypeAggregateFactory<>();
         factory.setPrototypeBeanName("order");
@@ -78,8 +86,15 @@ public class AxonConfig {
     }
 
     @Bean
-    public Repository<Order> jpaOrderRepository() {
+    public Repository<Order> orderRepository() {
         return new CachingEventSourcingRepository<>(orderAggregateFactory(), eventStore(), new PessimisticLockFactory(), cache(), parameterResolverFactory(), NoSnapshotTriggerDefinition.INSTANCE);
+    }
+
+    @Bean
+    public OrderHandler orderHandler() {
+        OrderHandler orderHandler = new OrderHandler();
+        orderHandler.setRepository(orderRepository());
+        return orderHandler;
     }
 
     @Bean
