@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
 
 import pl.start.your.life.aggregate.Pay;
 import pl.start.your.life.domain.Order;
+import pl.start.your.life.domain.OrderHandler;
 import pl.start.your.life.handler.PayHandler;
 
 @Configuration
@@ -81,15 +82,15 @@ public class AxonConfig {
 
     @Bean
     public Configurer configurer(Configurer configurer) {
-//        configurer.registerCommandHandler(c -> orderHandler());
+        configurer.registerCommandHandler(c -> orderHandler());
         configurer.registerCommandHandler(c -> new PayHandler());
         return configurer;
     }
 
-//    @Bean
-//    public OrderHandler orderHandler() {
-//        return new OrderHandler();
-//    }
+    @Bean
+    public OrderHandler orderHandler() {
+        return new OrderHandler();
+    }
 
 //    @Bean
 //    public AggregateAnnotationCommandHandler commandHandler() {
