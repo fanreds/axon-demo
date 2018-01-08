@@ -7,10 +7,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
-import org.axonframework.eventsourcing.EventSourcingHandler;
-import org.axonframework.spring.stereotype.Aggregate;
+import org.axonframework.commandhandling.model.AggregateRoot;
+import org.axonframework.eventhandling.EventHandler;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +21,7 @@ import pl.start.your.life.event.OrderCreatedEvent;
 @Table(name = "ORDERS")
 @Data
 @NoArgsConstructor
-@Aggregate(repository = "jpaOrderRepository")
+@AggregateRoot
 @AllArgsConstructor
 public class Order {
     @Id
@@ -33,15 +32,16 @@ public class Order {
     private Integer price;
     private Integer accountId;
 
-//    @CommandHandler
-//    public Order(OrderCreateCommand command) {
-//        apply(new OrderCreatedEvent(command.getOrderId(), command.getPrice(), command.getAccountId()));
-//    }
+    public void orderCreated(OrderCreateCommand command) {
+        apply(new OrderCreatedEvent(command.getOrderId(), command.getPrice(), command.getAccountId()));
+    }
 
-    @EventSourcingHandler
+    @EventHandler
     public void on(OrderCreatedEvent event) {
         System.out.println("on source OrderCreatedEvent");
         this.id = event.getOrderId();
+        this.price = event.getPrice();
+        this.accountId = event.getAccountId();
     }
 
 }

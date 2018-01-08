@@ -9,7 +9,6 @@ import org.axonframework.common.caching.NoCache;
 import org.axonframework.common.jpa.ContainerManagedEntityManagerProvider;
 import org.axonframework.common.jpa.EntityManagerProvider;
 import org.axonframework.common.lock.PessimisticLockFactory;
-import org.axonframework.config.Configurer;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventsourcing.AggregateFactory;
@@ -30,8 +29,6 @@ import org.springframework.context.annotation.Configuration;
 
 import pl.start.your.life.aggregate.Pay;
 import pl.start.your.life.domain.Order;
-import pl.start.your.life.domain.OrderHandler;
-import pl.start.your.life.handler.PayHandler;
 
 @Configuration
 public class AxonConfig {
@@ -79,23 +76,6 @@ public class AxonConfig {
         factory.setPrototypeBeanName("pay");
         return factory;
     }
-
-    @Bean
-    public Configurer configurer(Configurer configurer) {
-        configurer.registerCommandHandler(c -> orderHandler());
-        configurer.registerCommandHandler(c -> new PayHandler());
-        return configurer;
-    }
-
-    @Bean
-    public OrderHandler orderHandler() {
-        return new OrderHandler();
-    }
-
-//    @Bean
-//    public AggregateAnnotationCommandHandler commandHandler() {
-//        return new AggregateAnnotationCommandHandler<>(Order.class, jpaOrderRepository());
-//    }
 
     @Bean
     public Repository<Order> jpaOrderRepository() {
