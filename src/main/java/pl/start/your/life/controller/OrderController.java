@@ -28,7 +28,7 @@ public class OrderController {
     private CommandBus commandBus;
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity saveUser(@RequestBody OrderDto orderDto) {
+    public ResponseEntity newOrder(@RequestBody OrderDto orderDto) {
         commandBus.dispatch(asCommandMessage(new OrderCreateCommand(orderDto.getOrderId(), orderDto.getPrice(), orderDto.getAccountId())), LoggingCallback.INSTANCE);
         return ResponseEntity.ok().build();
     }

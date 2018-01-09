@@ -57,7 +57,7 @@ public class Order {
 
     @EventSourcingHandler
     public void on(OrderCreatedEvent event) {
-        System.out.println("on source OrderCreatedEvent");
+        System.out.println("@EventSourcingHandler OrderCreatedEvent");
         this.id = event.getOrderId();
         this.price = event.getPrice();
         this.accountId = event.getAccountId();
@@ -68,7 +68,7 @@ public class Order {
 
     @EventSourcingHandler
     public void on(OrderCanceledEvent event) {
-        System.out.println("on source OrderCanceledEvent");
+        System.out.println("@EventSourcingHandler OrderCanceledEvent");
         this.id = event.getOrderId();
         this.price = 0;
         this.accountId = event.getAccountId();
@@ -77,7 +77,7 @@ public class Order {
 
     @EventSourcingHandler
     public void on(PaymentAcceptedEvent event) {
-        System.out.println("on handler PaymentAcceptedEvent");
+        System.out.println("@EventSourcingHandler PaymentAcceptedEvent");
         this.id = event.getOrderId();
         this.accountId = event.getAccountId();
         this.payed = true;
@@ -85,7 +85,7 @@ public class Order {
 
     @EventSourcingHandler
     public void on(OrderApprovedEvent event) {
-        System.out.println("on handler PaymentAcceptedEvent");
+        System.out.println("@EventSourcingHandler OrderApprovedEvent");
         this.id = event.getOrderId();
         this.approved = true;
     }
