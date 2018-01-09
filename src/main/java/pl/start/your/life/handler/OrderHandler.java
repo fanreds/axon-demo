@@ -1,6 +1,9 @@
 package pl.start.your.life.handler;
 
+import static java.util.Optional.ofNullable;
 import static org.axonframework.commandhandling.GenericCommandMessage.asCommandMessage;
+
+import java.util.Optional;
 
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
@@ -19,8 +22,9 @@ import pl.start.your.life.command.PaymentCommand;
 import pl.start.your.life.domain.Account;
 import pl.start.your.life.domain.Order;
 import pl.start.your.life.event.OrderCreatedEvent;
+import pl.start.your.life.exception.AccountNotExist;
 import pl.start.your.life.exception.LimitCashExceededException;
-import pl.start.your.life.repository.AccountRepository;
+import pl.start.your.life.repository.AccountJpaRepository;
 import pl.start.your.life.repository.OrderJpaRepository;
 
 @Component
@@ -28,34 +32,35 @@ import pl.start.your.life.repository.OrderJpaRepository;
 public class OrderHandler {
 
     private OrderJpaRepository jpaOrderRepository;
-    private Repository<Order> repository;
-    private AccountRepository accountRepository;
+    private Repository<Order> orderRepository;
+    private AccountJpaRepository accountJpaRepository;
     @Autowired
     private CommandBus commandBus;
 
     @CommandHandler
     public void handle(OrderCreateCommand command) throws Exception {
         System.out.println("on command create order");
-        Aggregate<Order> order = repository.newInstance(() -> new Order(command.getOrderId(), command.getPrice(), command.getAccountId()));
+        Aggregate<Order> order = orderRepository.newInstance(() -> new Order(command.getOrderId(), command.getPrice(), command.getAccountId()));
         jpaOrderRepository.save(new Order(command.getOrderId(), command.getPrice(), command.getAccountId()));
         order.execute(e -> e.applyOrderCreatedEvent(command));
     }
 
     @CommandHandler
     public void handle(PaymentCommand command) throws Exception {
-        Account account = accountRepository.findOne(command.getAccountId());
-        Aggregate<Order> aggregate = repository.load(command.getOrderId().toString());
-        if (command.getPrice() > account.getSaldo()) {
+        Optional<Account> accountOptional = ofNullable(accountJpaRepository.findOne(command.getAccountId()));
+        Account account = accountOptional.orElseThrow(AccountNotExist::new);
+        Aggregate<Order> aggregate = orderRepository.load(command.getOrderId().toString());
+        if (command.getPrice() > account.getBalance()) {
             throw new LimitCashExceededException();
         }
         aggregate.execute(e -> e.applyPaymentAcceptedEvent(command));
-        account.setSaldo(account.getSaldo() - command.getPrice());
+        account.applyDecreasedBalanceEvent(command.getAccountId(), command.getPrice());
     }
 
     @Autowired
     @Qualifier(value = "orderRepository")
-    public void setRepository(Repository<Order> orderRepository) {
-        this.repository = orderRepository;
+    public void setOrderRepository(Repository<Order> orderRepository) {
+        this.orderRepository = orderRepository;
     }
 
     @Autowired
@@ -64,8 +69,8 @@ public class OrderHandler {
     }
 
     @Autowired
-    public void setAccountRepository(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
+    public void setAccountJpaRepository(AccountJpaRepository accountJpaRepository) {
+        this.accountJpaRepository = accountJpaRepository;
     }
 
     @EventHandler
@@ -75,17 +80,15 @@ public class OrderHandler {
             public void onSuccess(CommandMessage<? extends PaymentCommand> commandMessage, Object result) {
                 System.out.println("Payment command successful");
                 PaymentCommand payload = commandMessage.getPayload();
-                Aggregate<Order> orderAggregate = repository.load(payload.getOrderId().toString());
+                Aggregate<Order> orderAggregate = orderRepository.load(payload.getOrderId().toString());
                 orderAggregate.execute(e -> e.applyOrderApproveEvent(payload));
             }
 
             @Override
             public void onFailure(CommandMessage<? extends PaymentCommand> commandMessage, Throwable cause) {
-                if (cause.getClass().equals(LimitCashExceededException.class)) {
-                    PaymentCommand payload = commandMessage.getPayload();
-                    Aggregate<Order> orderAggregate = repository.load(payload.getOrderId().toString());
-                    orderAggregate.execute(e -> e.applyOrderCanceledEvent(payload));
-                }
+                PaymentCommand payload = commandMessage.getPayload();
+                Aggregate<Order> orderAggregate = orderRepository.load(payload.getOrderId().toString());
+                orderAggregate.execute(e -> e.applyOrderCanceledEvent(payload));
             }
         });
     }

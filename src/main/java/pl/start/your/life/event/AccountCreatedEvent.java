@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class DicreasedBalanceAccountEvent {
-    private Integer orderId;
+public class AccountCreatedEvent {
+    private Integer accountId;
+    private Integer balance;
 }

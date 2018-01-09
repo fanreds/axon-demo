@@ -8,8 +8,6 @@ import org.axonframework.common.caching.Cache;
 import org.axonframework.common.caching.NoCache;
 import org.axonframework.common.jpa.ContainerManagedEntityManagerProvider;
 import org.axonframework.common.jpa.EntityManagerProvider;
-import org.axonframework.eventhandling.EventBus;
-import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventsourcing.AggregateFactory;
 import org.axonframework.eventsourcing.CachingEventSourcingRepository;
 import org.axonframework.eventsourcing.NoSnapshotTriggerDefinition;
@@ -25,7 +23,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import pl.start.your.life.domain.Account;
 import pl.start.your.life.domain.Order;
+import pl.start.your.life.handler.AccountHandler;
 import pl.start.your.life.handler.OrderHandler;
 
 @Configuration
@@ -69,9 +69,22 @@ public class AxonConfig {
     }
 
     @Bean
+    @Scope("prototype")
+    public Account account() {
+        return new Account();
+    }
+
+    @Bean
     public AggregateFactory<Order> orderAggregateFactory() {
         SpringPrototypeAggregateFactory<Order> factory = new SpringPrototypeAggregateFactory<>();
         factory.setPrototypeBeanName("order");
+        return factory;
+    }
+
+    @Bean
+    public AggregateFactory<Account> accountAggregateFactory() {
+        SpringPrototypeAggregateFactory<Account> factory = new SpringPrototypeAggregateFactory<>();
+        factory.setPrototypeBeanName("account");
         return factory;
     }
 
@@ -81,10 +94,22 @@ public class AxonConfig {
     }
 
     @Bean
+    public Repository<Account> accountRepository() {
+        return new CachingEventSourcingRepository<>(accountAggregateFactory(), eventStore(), cache(), NoSnapshotTriggerDefinition.INSTANCE);
+    }
+
+    @Bean
     public OrderHandler orderHandler() {
         OrderHandler orderHandler = new OrderHandler();
-        orderHandler.setRepository(orderRepository());
+        orderHandler.setOrderRepository(orderRepository());
         return orderHandler;
+    }
+
+    @Bean
+    public AccountHandler accountHandler() {
+        AccountHandler accountHandler = new AccountHandler();
+        accountHandler.setRepository(accountRepository());
+        return accountHandler;
     }
 
     @Bean
@@ -92,8 +117,4 @@ public class AxonConfig {
         return new SimpleCommandBus();
     }
 
-    @Bean
-    public EventBus eventBus() {
-        return new SimpleEventBus();
-    }
 }

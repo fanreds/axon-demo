@@ -1,10 +1,13 @@
 package pl.start.your.life.event;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-@AllArgsConstructor
-public class IncreasedBalanceAccountEvent {
-    private Integer orderId;
+@EqualsAndHashCode(callSuper = true)
+public class IncreasedBalanceAccountEvent extends AbstractBalanceAccountEvent {
+
+    public IncreasedBalanceAccountEvent(Integer accountId, Integer amount) {
+        super(accountId, amount);
+    }
 }

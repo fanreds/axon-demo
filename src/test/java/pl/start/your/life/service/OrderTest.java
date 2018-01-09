@@ -15,18 +15,19 @@ import pl.start.your.life.command.OrderCreateCommand;
 import pl.start.your.life.command.PaymentCommand;
 import pl.start.your.life.domain.Account;
 import pl.start.your.life.domain.Order;
+import pl.start.your.life.event.DecreasedBalanceAccountEvent;
 import pl.start.your.life.event.OrderCreatedEvent;
 import pl.start.your.life.event.PaymentAcceptedEvent;
 import pl.start.your.life.exception.LimitCashExceededException;
 import pl.start.your.life.handler.OrderHandler;
-import pl.start.your.life.repository.AccountRepository;
+import pl.start.your.life.repository.AccountJpaRepository;
 import pl.start.your.life.repository.OrderJpaRepository;
 
 public class OrderTest {
     private FixtureConfiguration<Order> fixture;
 
     @Mock
-    private AccountRepository accountRepository;
+    private AccountJpaRepository accountRepository;
     @Mock
     private OrderJpaRepository jpaOrderRepository;
 
@@ -35,9 +36,9 @@ public class OrderTest {
         initMocks(this);
         fixture = new AggregateTestFixture<>(Order.class);
         OrderHandler orderHandler = new OrderHandler();
-        orderHandler.setRepository(fixture.getRepository());
+        orderHandler.setOrderRepository(fixture.getRepository());
         orderHandler.setJpaOrderRepository(jpaOrderRepository);
-        orderHandler.setAccountRepository(accountRepository);
+        orderHandler.setAccountJpaRepository(accountRepository);
         fixture.registerAnnotatedCommandHandler(orderHandler);
         when(jpaOrderRepository.save(any(Order.class))).thenReturn(new Order());
         when(accountRepository.findOne(anyInt())).thenReturn(new Account(1, 200));
@@ -56,7 +57,7 @@ public class OrderTest {
         fixture.givenCommands(new OrderCreateCommand(1, 200, 1))
                 .andGiven(new OrderCreatedEvent(1, 200, 1))
                 .when(new PaymentCommand(1, 1, 100))
-                .expectEvents(new PaymentAcceptedEvent(1, 1));
+                .expectEvents(new PaymentAcceptedEvent(1, 1), new DecreasedBalanceAccountEvent(1, 100));
     }
 
     @Test
