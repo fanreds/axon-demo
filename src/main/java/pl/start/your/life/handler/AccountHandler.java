@@ -24,7 +24,6 @@ import pl.start.your.life.repository.AccountJpaRepository;
 public class AccountHandler {
     private Repository<Account> repository;
 
-    @Autowired
     private AccountJpaRepository accountJpaRepository;
 
     @Autowired
@@ -58,6 +57,11 @@ public class AccountHandler {
     @Qualifier(value = "accountRepository")
     public void setRepository(Repository<Account> repository) {
         this.repository = repository;
+    }
+
+    @Autowired
+    public void setAccountJpaRepository(AccountJpaRepository accountJpaRepository) {
+        this.accountJpaRepository = accountJpaRepository;
     }
 
     private void createAccount(Integer accountId, Integer balance) {
