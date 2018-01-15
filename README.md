@@ -19,3 +19,7 @@ case create new order
 do money transfer for account(if account not exists, will be created)
 
 `curl.exe -i -X POST -H "Content-Type:application/json" -d '{"accountId":"1","amount":"100"}' localhost:8080/api/moneyTransfer`
+
+***Configuration***
+
+All the events are stored in-memory.
