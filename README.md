@@ -22,4 +22,4 @@ do money transfer for account(if account not exists, will be created)
 
 ***Configuration***
 
-All the events are stored in-memory.
+All the events are stored on h2 database.

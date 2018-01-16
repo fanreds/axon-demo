@@ -6,19 +6,24 @@ import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.model.Repository;
 import org.axonframework.common.caching.Cache;
 import org.axonframework.common.caching.NoCache;
-import org.axonframework.common.jpa.ContainerManagedEntityManagerProvider;
+import org.axonframework.common.jdbc.ConnectionProvider;
 import org.axonframework.common.jpa.EntityManagerProvider;
+import org.axonframework.common.transaction.TransactionManager;
 import org.axonframework.eventsourcing.AggregateFactory;
 import org.axonframework.eventsourcing.CachingEventSourcingRepository;
 import org.axonframework.eventsourcing.NoSnapshotTriggerDefinition;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.EventStore;
-import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageEngine;
+import org.axonframework.eventsourcing.eventstore.jpa.JpaEventStorageEngine;
 import org.axonframework.messaging.annotation.ParameterResolver;
 import org.axonframework.messaging.annotation.ParameterResolverFactory;
+import org.axonframework.monitoring.NoOpMessageMonitor;
+import org.axonframework.spring.config.EnableAxon;
 import org.axonframework.spring.config.annotation.SpringBeanParameterResolverFactory;
 import org.axonframework.spring.eventsourcing.SpringPrototypeAggregateFactory;
+import org.axonframework.spring.jdbc.SpringDataSourceConnectionProvider;
+import org.axonframework.spring.messaging.unitofwork.SpringTransactionManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -28,18 +33,18 @@ import pl.start.your.life.domain.Order;
 import pl.start.your.life.handler.AccountHandler;
 import pl.start.your.life.handler.OrderHandler;
 
+@EnableAxon
 @Configuration
-public class AxonConfig {
-
-
-    @Bean
-    public EntityManagerProvider entityManagerProvider() {
-        return new ContainerManagedEntityManagerProvider();
-    }
+public class AxonConfig extends JpaConfig {
 
     @Bean
     public EventStore eventStore() {
         return new EmbeddedEventStore(eventStorageEngine());
+    }
+
+    @Bean
+    public ConnectionProvider springDataSourceConnectionProvider() {
+        return new SpringDataSourceConnectionProvider(dataSource());
     }
 
     @Bean
@@ -48,8 +53,18 @@ public class AxonConfig {
     }
 
     @Bean
+    public TransactionManager axonTransactionManager() {
+        return new SpringTransactionManager(transactionManager());
+    }
+
+    @Bean
+    public EntityManagerProvider entityManagerProvider() {
+        return new AxonEntityManagerProvider();
+    }
+
+    @Bean
     public EventStorageEngine eventStorageEngine() {
-        return new InMemoryEventStorageEngine();
+        return new JpaEventStorageEngine(entityManagerProvider(), axonTransactionManager());
     }
 
     @Bean
@@ -114,7 +129,7 @@ public class AxonConfig {
 
     @Bean
     public CommandBus commandBus() {
-        return new SimpleCommandBus();
+        return new SimpleCommandBus(axonTransactionManager(), NoOpMessageMonitor.INSTANCE);
     }
 
 }
