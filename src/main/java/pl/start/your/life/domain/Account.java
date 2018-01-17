@@ -9,7 +9,7 @@ import javax.persistence.Table;
 
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateRoot;
-import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.spring.stereotype.Aggregate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,7 +25,7 @@ import pl.start.your.life.event.IncreasedBalanceAccountEvent;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@AggregateRoot
+@Aggregate
 public class Account {
     @Id
     @AggregateIdentifier
@@ -33,27 +33,6 @@ public class Account {
     private Integer id;
 
     private Integer balance;
-
-    @EventSourcingHandler
-    public void on(IncreasedBalanceAccountEvent event) {
-        this.id = event.getAccountId();
-        this.balance += event.getAmount();
-        System.out.println("@EventSourcingHandler IncreasedBalanceAccountEvent, my balance is " + this.balance);
-    }
-
-    @EventSourcingHandler
-    public void on(DecreasedBalanceAccountEvent event) {
-        this.id = event.getAccountId();
-        this.balance -= event.getAmount();
-        System.out.println("@EventSourcingHandler DicreasedBalanceAccountEvent, my balance is " + this.balance);
-    }
-
-    @EventSourcingHandler
-    public void on(AccountCreatedEvent event) {
-        this.id = event.getAccountId();
-        this.balance = event.getBalance();
-        System.out.println("@EventSourcingHandler AccountCreatedEvent, my balance is " + event.getBalance());
-    }
 
     public void applyCreatedAccountEvent(AccountCreateCommand command) {
         apply(new AccountCreatedEvent(command.getAccountId(), command.getBalance()));

@@ -1,40 +1,35 @@
 package pl.start.your.life.handler;
 
 
+import static java.util.Optional.ofNullable;
 import static org.axonframework.commandhandling.GenericCommandMessage.asCommandMessage;
 
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.callbacks.LoggingCallback;
-import org.axonframework.commandhandling.model.Aggregate;
-import org.axonframework.commandhandling.model.AggregateNotFoundException;
-import org.axonframework.commandhandling.model.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import lombok.NoArgsConstructor;
 import pl.start.your.life.command.AccountCreateCommand;
 import pl.start.your.life.command.MoneyTransferCommand;
 import pl.start.your.life.domain.Account;
-import pl.start.your.life.repository.AccountJpaRepository;
+import pl.start.your.life.exception.EntityNotExist;
+import pl.start.your.life.repository.AccountRepository;
 
 @Component
 @NoArgsConstructor
-public class AccountHandler {
-    private Repository<Account> repository;
-
-    private AccountJpaRepository accountJpaRepository;
+public class AccountCommandHandler {
+    private AccountRepository accountRepository;
 
     @Autowired
     private CommandBus commandBus;
 
     @CommandHandler
-    public void handle(AccountCreateCommand command) throws Exception {
+    public void handle(AccountCreateCommand command) {
         final Account account = new Account(command.getAccountId(), command.getBalance());
-        Aggregate<Account> accountAggregate = repository.newInstance(() -> account);
-        accountAggregate.execute(e -> e.applyCreatedAccountEvent(command));
-        accountJpaRepository.save(account);
+        Account loadedAccount = ofNullable(accountRepository.findOne(command.getAccountId())).orElseGet(() -> accountRepository.save(account));
+        loadedAccount.applyCreatedAccountEvent(command);
     }
 
     @CommandHandler
@@ -42,26 +37,20 @@ public class AccountHandler {
         System.out.println("on command MoneyTransferCommand");
         try {
             makeTransferForAccount(command);
-        } catch (AggregateNotFoundException e) {
+        } catch (EntityNotExist e) {
             createAccount(command.getAccountId(), 0);
             makeTransferForAccount(command);
         }
     }
 
     private void makeTransferForAccount(MoneyTransferCommand command) {
-        Aggregate<Account> account = repository.load(command.getAccountId().toString());
-        account.execute(e -> e.applyIncreasedBalanceEvent(command));
+        Account account = ofNullable(accountRepository.findOne(command.getAccountId())).orElseThrow(EntityNotExist::new);
+        account.applyIncreasedBalanceEvent(command);
     }
 
     @Autowired
-    @Qualifier(value = "accountRepository")
-    public void setRepository(Repository<Account> repository) {
-        this.repository = repository;
-    }
-
-    @Autowired
-    public void setAccountJpaRepository(AccountJpaRepository accountJpaRepository) {
-        this.accountJpaRepository = accountJpaRepository;
+    public void setAccountRepository(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
     }
 
     private void createAccount(Integer accountId, Integer balance) {

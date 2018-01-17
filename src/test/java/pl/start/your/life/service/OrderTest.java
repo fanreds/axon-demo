@@ -19,26 +19,25 @@ import pl.start.your.life.event.DecreasedBalanceAccountEvent;
 import pl.start.your.life.event.OrderCreatedEvent;
 import pl.start.your.life.event.PaymentAcceptedEvent;
 import pl.start.your.life.exception.LimitCashExceededException;
-import pl.start.your.life.handler.OrderHandler;
-import pl.start.your.life.repository.AccountJpaRepository;
-import pl.start.your.life.repository.OrderJpaRepository;
+import pl.start.your.life.handler.OrderCommandHandler;
+import pl.start.your.life.repository.AccountRepository;
+import pl.start.your.life.repository.OrderRepository;
 
 public class OrderTest {
     private FixtureConfiguration<Order> fixture;
 
     @Mock
-    private AccountJpaRepository accountRepository;
+    private AccountRepository accountRepository;
     @Mock
-    private OrderJpaRepository jpaOrderRepository;
+    private OrderRepository jpaOrderRepository;
 
     @Before
     public void setup() {
         initMocks(this);
         fixture = new AggregateTestFixture<>(Order.class);
-        OrderHandler orderHandler = new OrderHandler();
-        orderHandler.setOrderRepository(fixture.getRepository());
-        orderHandler.setJpaOrderRepository(jpaOrderRepository);
-        orderHandler.setAccountJpaRepository(accountRepository);
+        OrderCommandHandler orderHandler = new OrderCommandHandler();
+        orderHandler.setOrderRepository(jpaOrderRepository);
+        orderHandler.setAccountRepository(accountRepository);
         fixture.registerAnnotatedCommandHandler(orderHandler);
         when(jpaOrderRepository.save(any(Order.class))).thenReturn(new Order());
         when(accountRepository.findOne(anyInt())).thenReturn(new Account(1, 200));

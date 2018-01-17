@@ -9,7 +9,7 @@ import javax.persistence.Table;
 
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateRoot;
-import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.spring.stereotype.Aggregate;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,7 +26,7 @@ import pl.start.your.life.event.PaymentAcceptedEvent;
 @Table(name = "ORDERS")
 @Data
 @NoArgsConstructor
-@AggregateRoot
+@Aggregate
 @RequiredArgsConstructor
 public class Order {
     @Id
@@ -54,42 +54,6 @@ public class Order {
     public void applyPaymentAcceptedEvent(PaymentCommand command) {
         apply(new PaymentAcceptedEvent(command.getOrderId(), command.getAccountId()));
     }
-
-    @EventSourcingHandler
-    public void on(OrderCreatedEvent event) {
-        System.out.println("@EventSourcingHandler OrderCreatedEvent");
-        this.id = event.getOrderId();
-        this.price = event.getPrice();
-        this.accountId = event.getAccountId();
-        this.payed = false;
-        this.canceled = false;
-        this.approved = false;
-    }
-
-    @EventSourcingHandler
-    public void on(OrderCanceledEvent event) {
-        System.out.println("@EventSourcingHandler OrderCanceledEvent");
-        this.id = event.getOrderId();
-        this.price = 0;
-        this.accountId = event.getAccountId();
-        this.canceled = true;
-    }
-
-    @EventSourcingHandler
-    public void on(PaymentAcceptedEvent event) {
-        System.out.println("@EventSourcingHandler PaymentAcceptedEvent");
-        this.id = event.getOrderId();
-        this.accountId = event.getAccountId();
-        this.payed = true;
-    }
-
-    @EventSourcingHandler
-    public void on(OrderApprovedEvent event) {
-        System.out.println("@EventSourcingHandler OrderApprovedEvent");
-        this.id = event.getOrderId();
-        this.approved = true;
-    }
-
 
     public void applyOrderApproveEvent(PaymentCommand command) {
         apply(new OrderApprovedEvent(command.getOrderId(), command.getAccountId()));
