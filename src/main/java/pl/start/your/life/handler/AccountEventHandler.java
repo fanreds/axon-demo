@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,14 +25,16 @@ public class AccountEventHandler {
     private AccountJpaRepository accountRepository;
 
     @EventHandler
-    public void on(IncreasedBalanceAccountEvent event) {
+    @Order(52)
+    public void on2(IncreasedBalanceAccountEvent event) {
         Account account = ofNullable(accountRepository.findOne(event.getAccountId())).orElseThrow(EntityNotExist::new);
         account.setBalance(account.getBalance() + event.getAmount());
         account.setId(event.getAccountId());
         System.out.println("@EventHandler IncreasedBalanceAccountEvent, my balance is " + account.getBalance());
     }
     @EventHandler
-    public void handle(IncreasedBalanceAccountEvent event) {
+    @Order(51)
+    public void on(IncreasedBalanceAccountEvent event) {
         System.out.println("@EventHandler IncreasedBalanceAccountEvent throw error");
 //        throw new IllegalStateException();
     }

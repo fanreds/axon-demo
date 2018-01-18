@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.start.your.life.command.PaymentCommand;
 import pl.start.your.life.domain.Order;
 import pl.start.your.life.event.DecreasedBalanceAccountEvent;
+import pl.start.your.life.event.IncreasedBalanceAccountEvent;
 import pl.start.your.life.event.OrderApprovedEvent;
 import pl.start.your.life.event.OrderCanceledEvent;
 import pl.start.your.life.event.OrderCreatedEvent;
@@ -43,6 +44,12 @@ public class OrderEventHandler {
         order.setApproved(false);
         order.setCanceled(false);
         order.setPrice(0);
+    }
+
+    @EventHandler
+    @org.springframework.core.annotation.Order(53)
+    public void on(IncreasedBalanceAccountEvent event) {
+        System.out.println("@EventHandler OrderEventHandler logged");
     }
 
     @EventHandler

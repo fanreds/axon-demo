@@ -22,4 +22,4 @@ do money transfer for account(if account not exists, will be created)
 
 ***Configuration***
 
-All the events are stored on h2 database.
+On this branch is version which shows selecting of event handler method ordering. For checked you have to create new money transfer request and obverve the console log.
