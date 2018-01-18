@@ -28,7 +28,12 @@ public class AccountEventHandler {
         Account account = ofNullable(accountRepository.findOne(event.getAccountId())).orElseThrow(EntityNotExist::new);
         account.setBalance(account.getBalance() + event.getAmount());
         account.setId(event.getAccountId());
-        System.out.println("@EventSourcingHandler IncreasedBalanceAccountEvent, my balance is " + account.getBalance());
+        System.out.println("@EventHandler IncreasedBalanceAccountEvent, my balance is " + account.getBalance());
+    }
+    @EventHandler
+    public void handle(IncreasedBalanceAccountEvent event) {
+        System.out.println("@EventHandler IncreasedBalanceAccountEvent throw error");
+//        throw new IllegalStateException();
     }
 
     @EventHandler
@@ -36,7 +41,7 @@ public class AccountEventHandler {
         Account account = ofNullable(accountRepository.findOne(event.getAccountId())).orElseThrow(EntityNotExist::new);
         account.setBalance(account.getBalance() - event.getAmount());
         account.setId(event.getAccountId());
-        System.out.println("@EventSourcingHandler DicreasedBalanceAccountEvent, my balance is " + account.getBalance());
+        System.out.println("@EventHandler DicreasedBalanceAccountEvent, my balance is " + account.getBalance());
     }
 
     @EventHandler
@@ -48,6 +53,6 @@ public class AccountEventHandler {
             account.setId(event.getAccountId());
             accountRepository.save(account);
         }
-        System.out.println("@EventSourcingHandler AccountCreatedEvent, my balance is " + event.getBalance());
+        System.out.println("@EventHandler AccountCreatedEvent, my balance is " + event.getBalance());
     }
 }
