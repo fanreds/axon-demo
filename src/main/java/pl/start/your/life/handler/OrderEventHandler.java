@@ -50,6 +50,7 @@ public class OrderEventHandler {
     @org.springframework.core.annotation.Order(53)
     public void on(IncreasedBalanceAccountEvent event) {
         System.out.println("@EventHandler OrderEventHandler logged");
+        throw new IllegalStateException();
     }
 
     @EventHandler

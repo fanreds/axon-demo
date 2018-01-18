@@ -32,12 +32,6 @@ public class AccountEventHandler {
         account.setId(event.getAccountId());
         System.out.println("@EventHandler IncreasedBalanceAccountEvent, my balance is " + account.getBalance());
     }
-    @EventHandler
-    @Order(51)
-    public void on(IncreasedBalanceAccountEvent event) {
-        System.out.println("@EventHandler IncreasedBalanceAccountEvent throw error");
-//        throw new IllegalStateException();
-    }
 
     @EventHandler
     public void on(DecreasedBalanceAccountEvent event) {
