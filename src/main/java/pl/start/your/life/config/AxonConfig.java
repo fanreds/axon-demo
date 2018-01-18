@@ -73,11 +73,6 @@ public class AxonConfig extends JpaConfig {
     }
 
     @Bean
-    public ParameterResolverFactory parameterResolverFactory() {
-        return new SpringBeanParameterResolverFactory();
-    }
-
-    @Bean
     @Scope("prototype")
     public Order order() {
         return new Order();
@@ -111,20 +106,6 @@ public class AxonConfig extends JpaConfig {
     @Bean
     public Repository<Account> accountRepository() {
         return new CachingEventSourcingRepository<>(accountAggregateFactory(), eventStore(), cache(), NoSnapshotTriggerDefinition.INSTANCE);
-    }
-
-    @Bean
-    public OrderHandler orderHandler() {
-        OrderHandler orderHandler = new OrderHandler();
-        orderHandler.setOrderRepository(orderRepository());
-        return orderHandler;
-    }
-
-    @Bean
-    public AccountHandler accountHandler() {
-        AccountHandler accountHandler = new AccountHandler();
-        accountHandler.setRepository(accountRepository());
-        return accountHandler;
     }
 
     @Bean
