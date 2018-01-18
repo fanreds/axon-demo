@@ -22,4 +22,5 @@ do money transfer for account(if account not exists, will be created)
 
 ***Configuration***
 
-All the events are stored on h2 database.
+Just use aggregate as write database store and entities as read database store.
+On events handling just only update the state of entities.

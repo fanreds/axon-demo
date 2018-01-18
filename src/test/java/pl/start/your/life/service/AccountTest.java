@@ -16,13 +16,13 @@ import pl.start.your.life.domain.Account;
 import pl.start.your.life.event.AccountCreatedEvent;
 import pl.start.your.life.event.IncreasedBalanceAccountEvent;
 import pl.start.your.life.handler.AccountCommandHandler;
-import pl.start.your.life.repository.AccountJpaRepository;
+import pl.start.your.life.repository.AccountRepository;
 
 public class AccountTest {
     private FixtureConfiguration<Account> fixture;
 
     @Mock
-    private AccountJpaRepository accountRepository;
+    private AccountRepository accountRepository;
 
     @Before
     public void setup() {

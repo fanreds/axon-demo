@@ -20,16 +20,16 @@ import pl.start.your.life.event.OrderCreatedEvent;
 import pl.start.your.life.event.PaymentAcceptedEvent;
 import pl.start.your.life.exception.LimitCashExceededException;
 import pl.start.your.life.handler.OrderCommandHandler;
-import pl.start.your.life.repository.AccountJpaRepository;
-import pl.start.your.life.repository.OrderJpaRepository;
+import pl.start.your.life.repository.AccountRepository;
+import pl.start.your.life.repository.OrderRepository;
 
 public class OrderTest {
     private FixtureConfiguration<Order> fixture;
 
     @Mock
-    private AccountJpaRepository accountRepository;
+    private AccountRepository accountRepository;
     @Mock
-    private OrderJpaRepository jpaOrderRepository;
+    private OrderRepository jpaOrderRepository;
 
     @Before
     public void setup() {

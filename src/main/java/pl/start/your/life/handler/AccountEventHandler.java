@@ -14,14 +14,14 @@ import pl.start.your.life.event.AccountCreatedEvent;
 import pl.start.your.life.event.DecreasedBalanceAccountEvent;
 import pl.start.your.life.event.IncreasedBalanceAccountEvent;
 import pl.start.your.life.exception.EntityNotExist;
-import pl.start.your.life.repository.AccountJpaRepository;
+import pl.start.your.life.repository.AccountRepository;
 
 @Component
 @Transactional
 public class AccountEventHandler {
 
     @Autowired
-    private AccountJpaRepository accountRepository;
+    private AccountRepository accountRepository;
 
     @EventHandler
     public void on(IncreasedBalanceAccountEvent event) {

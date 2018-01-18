@@ -21,7 +21,7 @@ import pl.start.your.life.event.OrderCanceledEvent;
 import pl.start.your.life.event.OrderCreatedEvent;
 import pl.start.your.life.event.PaymentAcceptedEvent;
 import pl.start.your.life.exception.EntityNotExist;
-import pl.start.your.life.repository.OrderJpaRepository;
+import pl.start.your.life.repository.OrderRepository;
 
 @Component
 @Transactional
@@ -32,7 +32,7 @@ public class OrderEventHandler {
     @Autowired
     private CommandBus commandBus;
     @Autowired
-    private OrderJpaRepository orderRepository;
+    private OrderRepository orderRepository;
 
     @EventHandler
     public void on(OrderCanceledEvent event) {
