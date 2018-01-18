@@ -1,9 +1,7 @@
 package pl.start.your.life.config;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
-import org.axonframework.eventsourcing.eventstore.jpa.DomainEventEntry;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -31,7 +29,7 @@ public class JpaConfig {
     @Primary
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder entityManagerFactoryBuilder) {
-        return entityManagerFactoryBuilder.dataSource(dataSource()).packages(Order.class, DomainEventEntry.class).build();
+        return entityManagerFactoryBuilder.dataSource(dataSource()).packages(Order.class).build();
     }
 
     @Bean

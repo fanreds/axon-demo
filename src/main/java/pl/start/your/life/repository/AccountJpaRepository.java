@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import pl.start.your.life.domain.Account;
 
-public interface AccountRepository extends JpaRepository<Account, Integer> {
+public interface AccountJpaRepository extends JpaRepository<Account, Integer> {
 }

@@ -25,7 +25,7 @@ public class OrderController {
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity newOrder(@RequestBody OrderDto orderDto) {
-        commandBus.dispatch(asCommandMessage(new OrderCreateCommand(orderDto.getOrderId(), orderDto.getPrice(), orderDto.getAccountId())), LoggingCallback.INSTANCE);
+        commandBus.dispatch(asCommandMessage(new OrderCreateCommand(orderDto.getPrice(), orderDto.getAccountId())), LoggingCallback.INSTANCE);
         return ResponseEntity.ok().build();
     }
 

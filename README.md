@@ -7,7 +7,7 @@ Story
 Firstly you need to make transfer money to account, and after that, you can create orders
 
 create new order
-`curl.exe -i -X POST -H "Content-Type:application/json" -d '{"orderId":"1","accountId":"1","price":"100"}' localhost:8080/api/order`
+`curl.exe -i -X POST -H "Content-Type:application/json" -d '{"accountId":"1","price":"100"}' localhost:8080/api/order`
 
 case create new order
 1. order created

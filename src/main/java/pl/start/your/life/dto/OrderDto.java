@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class OrderDto {
-    private Integer orderId;
     private Integer accountId;
     private Integer price;
 }

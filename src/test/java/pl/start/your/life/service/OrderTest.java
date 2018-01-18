@@ -20,23 +20,22 @@ import pl.start.your.life.event.OrderCreatedEvent;
 import pl.start.your.life.event.PaymentAcceptedEvent;
 import pl.start.your.life.exception.LimitCashExceededException;
 import pl.start.your.life.handler.OrderCommandHandler;
-import pl.start.your.life.repository.AccountRepository;
-import pl.start.your.life.repository.OrderRepository;
+import pl.start.your.life.repository.AccountJpaRepository;
+import pl.start.your.life.repository.OrderJpaRepository;
 
 public class OrderTest {
     private FixtureConfiguration<Order> fixture;
 
     @Mock
-    private AccountRepository accountRepository;
+    private AccountJpaRepository accountRepository;
     @Mock
-    private OrderRepository jpaOrderRepository;
+    private OrderJpaRepository jpaOrderRepository;
 
     @Before
     public void setup() {
         initMocks(this);
         fixture = new AggregateTestFixture<>(Order.class);
         OrderCommandHandler orderHandler = new OrderCommandHandler();
-        orderHandler.setOrderRepository(jpaOrderRepository);
         orderHandler.setAccountRepository(accountRepository);
         fixture.registerAnnotatedCommandHandler(orderHandler);
         when(jpaOrderRepository.save(any(Order.class))).thenReturn(new Order());
@@ -46,23 +45,23 @@ public class OrderTest {
     @Test
     public void orderCreateTest() {
         fixture.givenNoPriorActivity()
-                .when(new OrderCreateCommand(1, 200, 1))
+                .when(new OrderCreateCommand(200, 1))
                 .expectSuccessfulHandlerExecution()
-                .expectEvents(new OrderCreatedEvent(1, 200, 1));
+                .expectEvents(new OrderCreatedEvent(200, 1));
     }
 
     @Test
     public void paymentSuccessTest() {
-        fixture.givenCommands(new OrderCreateCommand(1, 200, 1))
-                .andGiven(new OrderCreatedEvent(1, 200, 1))
+        fixture.givenCommands(new OrderCreateCommand(200, 1))
+                .andGiven(new OrderCreatedEvent(200, 1))
                 .when(new PaymentCommand(1, 1, 100))
                 .expectEvents(new PaymentAcceptedEvent(1, 1), new DecreasedBalanceAccountEvent(1, 100));
     }
 
     @Test
     public void paymentFailTest() {
-        fixture.givenCommands(new OrderCreateCommand(1, 200, 1))
-                .andGiven(new OrderCreatedEvent(1, 200, 1))
+        fixture.givenCommands(new OrderCreateCommand(1, 200))
+                .andGiven(new OrderCreatedEvent(200, 1))
                 .when(new PaymentCommand(1, 1, 201))
                 .expectException(LimitCashExceededException.class);
     }
