@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Account {
+public class Account implements JPAEntity<Integer> {
     @Id
     @GeneratedValue
     private Integer id;

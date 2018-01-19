@@ -6,6 +6,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class OrderCanceledEvent {
-    private Integer orderId;
-    private Integer accountId;
+    private String aggIdentifier;
 }

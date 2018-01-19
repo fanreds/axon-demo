@@ -66,7 +66,7 @@ public class AccountCommandHandler {
         } else {
             Aggregate<AccountAggregate> accountAggregate = accountAggregateRepository.load(command.getAccountId().toString());
             accountAggregate.execute(e -> {
-                e.setBalance(command.getAmount());
+                e.setBalance(e.getBalance() + command.getAmount());
             });
             eventBus.publish(asEventMessage(new IncreasedBalanceAccountEvent(command.getAccountId(), command.getAmount())));
         }

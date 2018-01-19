@@ -23,4 +23,4 @@ do money transfer for account(if account not exists, will be created)
 ***Configuration***
 
 Just use aggregate as write database store and entities as read database store.
-On events handling just only update the state of entities.
+Use abstract repository to update the entity model and when aggregate is not initialized, just fetch from actual entity model and initialize.

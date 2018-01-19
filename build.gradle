@@ -26,6 +26,13 @@ apply plugin: 'war'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+sourceSets {
+    main {
+        java {
+            srcDir "${buildDir.absolutePath}/generated/source/apt/main"
+        }
+    }
+}
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter")

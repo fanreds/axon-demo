@@ -15,10 +15,9 @@ import lombok.RequiredArgsConstructor;
 @Data
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class Order {
+public class Order implements JPAEntity<Integer> {
     @Id
     @GeneratedValue
-    @NonNull
     private Integer id;
 
     @NonNull

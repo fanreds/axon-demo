@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class PaymentCommand {
-    private Integer orderId;
+    private String aggId;
     private Integer accountId;
     private Integer price;
 }

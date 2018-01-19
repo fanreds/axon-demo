@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class OrderApprovedEvent {
-    private Integer orderId;
+    private String aggIdentifier;
     private Integer price;
 }
