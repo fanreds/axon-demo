@@ -14,9 +14,9 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import pl.start.your.life.aggregate.AccountAggregate;
 import pl.start.your.life.domain.Order;
 
-@EntityScan("pl.start.your.life.domain")
 @EnableJpaRepositories(basePackages = {"pl.start.your.life.repository"})
 @Configuration
 public class JpaConfig {
@@ -29,7 +29,7 @@ public class JpaConfig {
     @Primary
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder entityManagerFactoryBuilder) {
-        return entityManagerFactoryBuilder.dataSource(dataSource()).packages(Order.class).build();
+        return entityManagerFactoryBuilder.dataSource(dataSource()).packages(Order.class, AccountAggregate.class).build();
     }
 
     @Bean

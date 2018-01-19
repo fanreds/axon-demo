@@ -6,13 +6,11 @@ import static org.axonframework.eventhandling.GenericEventMessage.asEventMessage
 import java.util.Optional;
 
 import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.commandhandling.model.Repository;
 import org.axonframework.eventhandling.EventBus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.NoArgsConstructor;
-import pl.start.your.life.aggregate.AccountAggregate;
 import pl.start.your.life.command.OrderCreateCommand;
 import pl.start.your.life.command.PaymentCommand;
 import pl.start.your.life.domain.Account;
@@ -26,7 +24,6 @@ import pl.start.your.life.repository.AccountRepository;
 public class OrderCommandHandler {
 
     private AccountRepository accountRepository;
-    private Repository<AccountAggregate> accountAggregateRepository;
     @Autowired
     private EventBus eventBus;
 
@@ -50,8 +47,4 @@ public class OrderCommandHandler {
         this.accountRepository = accountRepository;
     }
 
-    @Autowired
-    public void setAccountAggregateRepository(org.axonframework.commandhandling.model.Repository<AccountAggregate> accountAggregateRepository) {
-        this.accountAggregateRepository = accountAggregateRepository;
-    }
 }

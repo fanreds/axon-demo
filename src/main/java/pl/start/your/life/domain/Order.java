@@ -5,9 +5,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.axonframework.commandhandling.model.AggregateIdentifier;
-import org.axonframework.spring.stereotype.Aggregate;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -17,12 +14,10 @@ import lombok.RequiredArgsConstructor;
 @Table(name = "ORDERS")
 @Data
 @NoArgsConstructor
-@Aggregate
 @RequiredArgsConstructor
 public class Order {
     @Id
     @GeneratedValue
-    @AggregateIdentifier
     @NonNull
     private Integer id;
 

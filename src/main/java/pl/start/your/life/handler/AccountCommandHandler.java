@@ -8,11 +8,15 @@ import static org.axonframework.eventhandling.GenericEventMessage.asEventMessage
 import java.util.Optional;
 
 import org.axonframework.commandhandling.CommandBus;
+import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandHandler;
+import org.axonframework.commandhandling.CommandMessage;
+import org.axonframework.commandhandling.model.Aggregate;
 import org.axonframework.commandhandling.model.Repository;
 import org.axonframework.eventhandling.EventBus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.NoArgsConstructor;
 import pl.start.your.life.aggregate.AccountAggregate;
@@ -25,6 +29,7 @@ import pl.start.your.life.repository.AccountRepository;
 
 @Component
 @NoArgsConstructor
+@Transactional
 public class AccountCommandHandler {
 
     private Repository<AccountAggregate> accountAggregateRepository;
@@ -38,7 +43,7 @@ public class AccountCommandHandler {
 
     @CommandHandler
     public void handle(AccountCreateCommand command) throws Exception {
-        accountAggregateRepository.newInstance(() -> new AccountAggregate(command.getAccountId(), command.getBalance()));
+        accountAggregateRepository.newInstance(() -> new AccountAggregate(command.getAccountId().toString(), command.getBalance()));
         eventBus.publish(asEventMessage(new AccountCreatedEvent(command.getAccountId(), command.getBalance())));
     }
 
@@ -47,9 +52,24 @@ public class AccountCommandHandler {
         System.out.println("on command MoneyTransferCommand");
         Optional<Account> accountOptional = ofNullable(accountRepository.findOne(command.getAccountId()));
         if (!accountOptional.isPresent()) {
-            commandBus.dispatch(asCommandMessage(new AccountCreateCommand(command.getAccountId(), 0)));
+            commandBus.dispatch(asCommandMessage(new AccountCreateCommand(command.getAccountId(), 0)), new CommandCallback<Object, Object>() {
+                @Override
+                public void onSuccess(CommandMessage<?> commandMessage, Object result) {
+                    eventBus.publish(asEventMessage(new IncreasedBalanceAccountEvent(command.getAccountId(), command.getAmount())));
+                }
+
+                @Override
+                public void onFailure(CommandMessage<?> commandMessage, Throwable cause) {
+                    cause.printStackTrace();
+                }
+            });
+        } else {
+            Aggregate<AccountAggregate> accountAggregate = accountAggregateRepository.load(command.getAccountId().toString());
+            accountAggregate.execute(e -> {
+                e.setBalance(command.getAmount());
+            });
+            eventBus.publish(asEventMessage(new IncreasedBalanceAccountEvent(command.getAccountId(), command.getAmount())));
         }
-        eventBus.publish(asEventMessage(new IncreasedBalanceAccountEvent(command.getAccountId(), command.getAmount())));
     }
 
     @Autowired
